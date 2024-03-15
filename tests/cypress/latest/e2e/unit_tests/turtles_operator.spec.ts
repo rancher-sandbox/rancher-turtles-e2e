@@ -50,9 +50,8 @@ describe('Install Turtles Operator', () => {
         .click();
       // Select rancher-turtles-system namespace
       if (utils.isRancherManagerVersion('2.8')) {
-        cy.contains('Only User Namespaces') // eslint-disable-line cypress/unsafe-to-chain-command
-          .click()
-          .type('rancher-turtles-system{enter}{esc}');
+        cy.setNamespace('rancher-turtles-system');
+
         // Resource should be deployed (green badge)
         cy.get('.outlet').contains('Deployed rancher-turtles', {timeout: 240000});
       } else {

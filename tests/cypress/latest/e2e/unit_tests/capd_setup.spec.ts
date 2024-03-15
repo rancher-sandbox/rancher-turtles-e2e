@@ -37,9 +37,7 @@ describe('Enable CAPD provider', () => {
         .click();
       cy.get('.nav').contains('Deployments')
         .click();
-      cy.contains('Only User Namespaces') // eslint-disable-line cypress/unsafe-to-chain-command
-        .click()
-        .type('rancher-turtles-system{enter}{esc}');
+      cy.setNamespace('rancher-turtles-system');
 
       if (utils.isRancherManagerVersion('2.7')) {
         cy.reload();
@@ -52,74 +50,63 @@ describe('Enable CAPD provider', () => {
       cy.get('@label').type(' --insecure-skip-verify=true')
       cy.clickButton('Save');
       cy.contains('Active' + ' ' + deployment, {timeout: 20000});
-      cy.getBySel('namespaces-values-close-0')
-        .click();
-      cy.contains('Only User Namespaces')
-        .click();
+      cy.namespaceReset();
     })
   );
 
-    qase(12,
-    it('Create CAPD namespace', () => {
-      cy.contains('local')
-        .click();
-      cypressLib.accesMenu('Projects/Namespaces');
-      cy.contains('Only User Namespaces') // eslint-disable-line cypress/unsafe-to-chain-command
-        .click()
-        .type('Not{enter}{esc}');
+  //   qase(12,
+  //   it('Create CAPD namespace', () => {
+  //     cy.contains('local')
+  //       .click();
+  //     cypressLib.accesMenu('Projects/Namespaces');
+  //     cy.setNamespace('Not');
 
-      if (utils.isRancherManagerVersion('2.7')) {
-        cy.reload();
-      }
-      // Create CAPD namespace
-      cy.contains('Create Namespace')
-        .click();
-      cy.typeValue('Name', namespace);
-      cy.clickButton('Create');
-      cy.contains('Active' + ' ' + namespace);
-      cy.getBySel('namespaces-values').click();
-      cy.contains('Only User Namespaces')
-        .click();
-    })
-  );
+  //     if (utils.isRancherManagerVersion('2.7')) {
+  //       cy.reload();
+  //     }
+  //     // Create CAPD namespace
+  //     cy.contains('Create Namespace')
+  //       .click();
+  //     cy.typeValue('Name', namespace);
+  //     cy.clickButton('Create');
+  //     cy.contains('Active' + ' ' + namespace);
+  //     cy.namespaceReset();
+  //   })
+  // );
 
-  qase(13,
-    it('Create CAPD provider', () => {
-      cypressLib.checkNavIcon('cluster-management')
-        .should('exist');
-      cypressLib.accesMenu('Cluster Management');
+  // qase(13,
+  //   it('Create CAPD provider', () => {
+  //     cypressLib.checkNavIcon('cluster-management')
+  //       .should('exist');
+  //     // Open Turtles menu
+  //     cy.accesMenuSelection('Cluster Management', 'CAPI');
 
-      // Open Turtles menu
-      cypressLib.accesMenu('CAPI');
-
-      // Create CAPD Infrastructure provider
-      cy.contains('Infrastructure Providers').click();
-      cy.clickButton('Create from YAML')
-      cy.readFile('./fixtures/capd-provider.yaml').then((data) => {
-        cy.get('.CodeMirror')
-          .then((editor) => {
-            editor[0].CodeMirror.setValue(data);
-        })
-      })
-      cy.clickButton('Create')
-      cy.contains('Active ' + 'docker');
-    })
-  );
+  //     // Create CAPD Infrastructure provider
+  //     cy.contains('Infrastructure Providers').click();
+  //     cy.clickButton('Create from YAML')
+  //     cy.readFile('./fixtures/capd-provider.yaml').then((data) => {
+  //       cy.get('.CodeMirror')
+  //         .then((editor) => {
+  //           editor[0].CodeMirror.setValue(data);
+  //       })
+  //     })
+  //     cy.clickButton('Create')
+  //     cy.contains('Active ' + 'docker');
+  //   })
+  // );
 
   qase(14,
     it('Enable CAPI Kubeadm provider', () => {
       cy.contains('local')
         .click();
       cypressLib.accesMenu('Projects/Namespaces');
-      cy.contains('Only User Namespaces') // eslint-disable-line cypress/unsafe-to-chain-command
-        .click()
-        .type('Not{enter}{esc}');
+      cy.setNamespace('Not');
 
       // Create CAPI Kubeadm provider
       cy.get('.header-buttons > :nth-child(1) > .icon')
         .click();
       cy.contains('Import YAML');
-      cy.readFile('./fixtures/capi-kubeadm-provider.yaml').then((data) => {
+      cy.readFile('./fixtures/full-providers.yaml').then((data) => {
         cy.get('.CodeMirror')
           .then((editor) => {
             editor[0].CodeMirror.setValue(data);
@@ -130,10 +117,7 @@ describe('Enable CAPD provider', () => {
       cy.clickButton('Close')
       cy.contains('Active ' + 'capi-kubeadm-bootstrap-system');
       cy.contains('Active ' + 'capi-kubeadm-control-plane-system');
-
-      cy.getBySel('namespaces-values').click();
-      cy.contains('Only User Namespaces')
-        .click();
+      cy.namespaceReset();
     })
   );
 

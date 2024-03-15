@@ -18,8 +18,10 @@ import * as utils from "~/support/utils";
 
 Cypress.config();
 describe('Import CAPD', () => {
-  const cluster = "cluster1-capi"
-  const repo = "https://github.com/rancher-sandbox/rancher-turtles-fleet-example.git"
+  const repoName = 'clusters'
+  const clusterShort = "cluster1"
+  const clusterFull = "cluster1-capi"
+  const repoUrl = "https://github.com/rancher-sandbox/rancher-turtles-fleet-example.git"
 
   beforeEach(() => {
     cy.login();
@@ -27,47 +29,44 @@ describe('Import CAPD', () => {
     cypressLib.burgerMenuToggle();
   });
 
+  [ 'per-cluster-import',
+    'main',
+  ].forEach((branch) => {
+
   qase(14,
     it('Import CAPD cluster using fleet', () => {
       cypressLib.checkNavIcon('cluster-management')
         .should('exist');
 
       // Click on the Continuous Delivery's icon
-      cypressLib.accesMenu('Continuous Delivery');
-      cypressLib.accesMenu('Git Repos');
-
-      // Change namespace to fleet-local
-      cy.contains('fleet-').click();
-      cy.contains('fleet-local')
-        .should('be.visible')
-        .click();
+      cy.deleteAllFleetRepos();
+      cypressLib.burgerMenuToggle();
+      cy.accesMenuSelection('Cluster Management', 'CAPI');
+      cy.contains("CAPI Clusters").click();
+      cy.contains(clusterShort).should('not.exist', {timeout:60000});
 
       // Add CAPD fleet repository
-      cy.clickButton('Add Repository');
-      cy.typeValue('Name', 'clusters');
-      cy.typeValue('Repository URL', repo);
-      cy.typeValue('Branch Name', 'main');
-      
-      // Create Git repo
-      cy.clickButton('Next');
-      cy.clickButton('Create');
-      cy.contains('clusters').click();
+      cypressLib.burgerMenuToggle();
+      cy.addFleetGitRepo({ repoName, repoUrl, branch });
+      cy.clickButton('Create');  
+      cy.contains(repoName).click();
     })
   );
 
   qase(15,
-    it('Auto import child cluster via namespace annotation', {
-      // Retry test once, to increase the effective timeout for cluster import
-      retries: 1
-    },
-    () => {
-      // Check child cluster cluster is created and auto-imported
-      cypressLib.burgerMenuToggle();
-      cy.contains('Pending ' + cluster, {timeout: 120000});
+    it('Auto import child cluster via "${branch}" annotation', () => {
+      if (branch == 'main') {
+        cy.namespaceAutoImport('Enable');
+      }
+      // Check child cluster is created and auto-imported
+      cy.visit('/');
+      cy.contains('Pending ' + clusterFull, {timeout: 120000});
       
       // Check cluster is Active
       cy.clickButton('Manage');
-      cy.contains('Active' + ' ' + cluster, {timeout: 120000});
+      cy.contains('Active ' + clusterFull, {timeout: 180000});
+
+      cy.checkCAPICluster(clusterShort);
     })
   );
 
@@ -75,7 +74,7 @@ describe('Import CAPD', () => {
     it('Install App on imported cluster', () => {
 
       // Click on imported CAPD cluster
-      cy.contains(cluster).click();
+      cy.contains(clusterFull).click();
       cy.get('.nav').contains('Apps')
       .click();
       cy.contains('Monitoring', {timeout:30000})
@@ -91,16 +90,35 @@ describe('Import CAPD', () => {
       // Close the shell to avoid conflict
       cy.get('.closer', {timeout:30000})
         .click();
-      cy.contains('Only User Namespaces') // eslint-disable-line cypress/unsafe-to-chain-command
-        .click()
-        .type('cattle-monitoring-system{enter}{esc}', { delay: 1000});
+      cy.setNamespace('cattle-monitoring');
 
       if (utils.isRancherManagerVersion('2.7')) {
         cy.reload();
       }
       // Resource should be deployed (green badge)
       cy.get('.outlet').contains('Deployed rancher-monitoring', {timeout: 240000});
-
+      cy.namespaceReset();
     })
   );
+
+  qase(16,
+    it('Remove an imported cluster from Rancher Manager', () => {
+      cypressLib.burgerMenuToggle();
+      cy.clickButton('Manage');
+      cy.contains('Active' + ' ' + clusterFull);
+
+      cy.viewport(1920, 1080);
+      cy.get('.input-sm')
+        .click()
+        .type(clusterFull);
+      cy.getBySel('sortable-table_check_select_all').click();
+      cy.clickButton('Delete');
+      cy.getBySel('prompt-remove-input')
+        .type(clusterFull);
+      cy.getBySel('prompt-remove-confirm-button').click();
+      cy.contains('Active' + ' ' + clusterFull).should('not.exist', {timeout:30000});
+      cy.checkCAPICluster(clusterShort);
+    })
+  );
+  })
 });
