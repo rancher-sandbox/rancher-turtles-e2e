@@ -1,3 +1,15 @@
+---
+apiVersion: turtles-capi.cattle.io/v1alpha1
+kind: CAPIProvider
+metadata:
+  name: docker
+  namespace: capd-system
+spec:
+  name: docker
+  type: infrastructure
+  configSecret:
+    name: variables
+---
 apiVersion: v1
 kind: Namespace
 metadata:

@@ -83,28 +83,28 @@ describe('Enable CAPD provider', () => {
     })
   );
 
-  qase(13,
-    it('Create CAPD provider', () => {
-      cypressLib.checkNavIcon('cluster-management')
-        .should('exist');
-      cypressLib.accesMenu('Cluster Management');
+  // qase(13,
+  //   it('Create CAPD provider', () => {
+  //     cypressLib.checkNavIcon('cluster-management')
+  //       .should('exist');
+  //     cypressLib.accesMenu('Cluster Management');
 
-      // Open Turtles menu
-      cypressLib.accesMenu('CAPI');
+  //     // Open Turtles menu
+  //     cypressLib.accesMenu('CAPI');
 
-      // Create CAPD Infrastructure provider
-      cy.contains('Infrastructure Providers').click();
-      cy.clickButton('Create from YAML')
-      cy.readFile('./fixtures/capd-provider.yaml').then((data) => {
-        cy.get('.CodeMirror')
-          .then((editor) => {
-            editor[0].CodeMirror.setValue(data);
-        })
-      })
-      cy.clickButton('Create')
-      cy.contains('Active ' + 'docker');
-    })
-  );
+  //     // Create CAPD Infrastructure provider
+  //     cy.contains('Infrastructure Providers').click();
+  //     cy.clickButton('Create from YAML')
+  //     cy.readFile('./fixtures/capd-provider.yaml').then((data) => {
+  //       cy.get('.CodeMirror')
+  //         .then((editor) => {
+  //           editor[0].CodeMirror.setValue(data);
+  //       })
+  //     })
+  //     cy.clickButton('Create')
+  //     cy.contains('Active ' + 'docker');
+  //   })
+  // );
 
   qase(14,
     it('Enable CAPI Kubeadm provider', () => {
