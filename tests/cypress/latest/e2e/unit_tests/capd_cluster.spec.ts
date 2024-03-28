@@ -103,4 +103,27 @@ describe('Import CAPD', () => {
 
     })
   );
+  qase(17,
+    it('delete the CAPD cluster repo', () => {
+        // Go to 'Continuous Delivery'
+        cypressLib.accesMenu('Continuous Delivery');
+        // Click 'Git Repo' from the left navigation
+        cypressLib.accesMenu('Git Repos');
+        // Change the namespace to fleet-local using the dropdown on the top bar
+        cy.contains('fleet-').click();
+        cy.contains('fleet-local').should('be.visible').click();
+        // Click the 'clusters' link
+        cy.contains("clusters").click();
+        cy.url().should("include","fleet/fleet.cattle.io.gitrepo/fleet-local/clusters")
+        // Click on the actions menu and select 'Delete' from the menu
+        cy.get('.actions .btn.actions').click();
+        cy.get('.icon.group-icon.icon-trash').click();
+        cypressLib.confirmDelete();
+        // Wait until the following returns no clusters found:
+        // kubectl get clusters.cluster.x-k8s.io
+        cypressLib.accesMenu('Home');
+        cy.contains(cluster).should('not.exist');
+    })
+    );
+
 });
