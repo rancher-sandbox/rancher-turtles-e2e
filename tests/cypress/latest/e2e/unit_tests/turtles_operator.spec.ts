@@ -25,6 +25,11 @@ describe('Install Turtles Operator', () => {
     cy.visit('/');
     cypressLib.burgerMenuToggle();
   });
+  afterEach(() => {
+    if ((Cypress as any).mocha.getRunner().suite.ctx.currentTest.state == "failed") {
+      (Cypress as any).runner.stop();
+    }
+  })
 
   qase(11,
     it('Add turtles repo', () => {
@@ -40,7 +45,7 @@ describe('Install Turtles Operator', () => {
 
   qase(13,
     it('Install Turtles operator', () => {
-      cy.contains('local').click();
+      cy.contains('local2').click();
       cy.installApp('Rancher Turtles', 'rancher-turtles-system');
     })
   );
