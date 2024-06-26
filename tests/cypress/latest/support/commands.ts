@@ -256,7 +256,7 @@ Cypress.Commands.add('removeFleetGitRepo', (repoName) => {
   cy.contains('fleet-local').should('be.visible').click();
   // Click the repo link
   cy.contains(repoName).click();
-  cy.url().should("include", "fleet/fleet.cattle.io.gitrepo/fleet-local/clusters")
+  cy.url().should("include", "fleet/fleet.cattle.io.gitrepo/fleet-local/" + repoName)
   // Click on the actions menu and select 'Delete' from the menu
   cy.get('.actions .btn.actions').click();
   cy.get('.icon.group-icon.icon-trash').click();
